@@ -6,68 +6,45 @@ def encode(binary: bytes) -> str:
     elif not isinstance(binary, (bytes, bytearray)):
         binary = bytes(binary)
 
-    mask = (1 << 14) - 1
+    temp = 0
+    bits = 0
 
-    bits = len(binary) << 3
-    count = bits // 14
-    remain = bits % 14
-
-    out = ''
-    for opos in range(count):
-        bbit = opos * 14
-        bidx = bbit >> 3
-        brsh = 10 - (bbit & 7)
-
-        bd0 = binary[bidx]
-        bd1 = binary[bidx + 1]
-        bd2 = binary[bidx + 2] if brsh < 8 else 0
-        val = (((bd0 << 16) | (bd1 << 8) | bd2) >> brsh) & mask
-
-        out += chr(0x4E10 + val)
-
-    if remain:
-        bbit = count * 14
-        ebit = bbit + remain - 1
-        bidx = bbit >> 3
-        eidx = ebit >> 3
-        shft = 10 - (bbit & 7)
-
-        bd0 = binary[bidx]
-        bd1 = binary[eidx] if bidx != eidx else 0
-        val = (((bd0 << 16) | (bd1 << 8)) >> shft) & mask
-
-        out += chr(0x4E10 + val)
-        out += chr(0x4E10 - remain)
-
-    return out
+    text = ''
+    for b in binary:
+        temp = (temp << 8) | b
+        bits += 8
+        while bits >= 14:
+            bits -= 14
+            text += chr(0x4E10 + (temp >> bits))
+        temp &= (1 << bits) - 1
+    if bits:
+        text += chr(0x4E10 + (temp << (14 - bits)))
+        text += chr(0x4E10 - bits)
+    return text
 
 
 def decode(ucsdata: str) -> bytes:
-    code_min = 0x4E10 - (14 - 1)
-    code_max = 0x8E10 - 1
-
     remain = 0
     temp = 0
-    pbits = 0
+    bits = 0
 
     binary = []
     for wchr in ucsdata:
         code = ord(wchr)
         if code < 0x4E10:
-            if code < code_min:
+            if code < 0x4E03:
                 continue
             remain = 0x4E10 - code
             break
-        if code > code_max:
+        if code > 0x8E0F:
             continue
 
-        val = code - 0x4E10
-        temp = (temp << 14) | val
-        pbits += 14
-        while pbits >= 8:
-            binary.append((temp >> (pbits - 8)) & 0xff)
-            pbits -= 8
-        temp &= (1 << pbits) - 1
+        temp = (temp << 14) | (code - 0x4E10)
+        bits += 14
+        while bits >= 8:
+            bits -= 8
+            binary.append((temp >> bits) & 0xff)
+        temp &= (1 << bits) - 1
 
     if remain:
         padding = 14 - remain
@@ -83,7 +60,7 @@ if __name__ == '__main__':
     import sys
 
     def test():
-        for cnt in range(1):
+        for cnt in range(20):
             for size in range(50):
                 data = [int(random.random() * 256) for _ in range(size)]
                 denc = encode(data)
