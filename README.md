@@ -2,7 +2,7 @@
 
 Unicode の文字コード U+4E03 〜 U+8E0F でバイト列を符号化した形式です。
 
-Unicode 14 では、U+4E03 〜 U+8E0F は全て CJKV Unified Ideographs に含まれています。この範囲の文字コードは、全て表示される文字(漢字)が割り当てられています。<br>(参考ツール：[Unicode Viewer](https://github.com/ikiuo/dhtml-unicode-viewer))
+Kanji 14 では、U+4E03 〜 U+8E0F は全て CJKV Unified Ideographs に含まれています。この範囲の文字コードは、全て表示される文字(漢字)が割り当てられています。<br>(参考ツール：[Unicode Viewer](https://github.com/ikiuo/dhtml-unicode-viewer))
 
 符号化に用いる文字には区切り記号の類や割り当てのない文字コードがないため、単純な処理で符号化と復号が可能です。
 
