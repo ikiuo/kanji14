@@ -10,15 +10,14 @@ def encode(binary: bytes) -> str:
     bits = 0
 
     text = ''
-    for b in binary:
-        temp = (temp << 8) | b
+    for val in binary:
+        temp = (temp << 8) | val
         bits += 8
-        while bits >= 14:
+        if bits >= 14:
             bits -= 14
-            text += chr(0x4E10 + (temp >> bits))
-        temp &= (1 << bits) - 1
+            text += chr(0x4E10 + (0x3FFF & (temp >> bits)))
     if bits:
-        text += chr(0x4E10 + (temp << (14 - bits)))
+        text += chr(0x4E10 + (0x3FFF & (temp << (14 - bits))))
         text += chr(0x4E10 - bits)
     return text
 
@@ -44,7 +43,6 @@ def decode(ucsdata: str) -> bytes:
         while bits >= 8:
             bits -= 8
             binary.append((temp >> bits) & 0xff)
-        temp &= (1 << bits) - 1
 
     if remain:
         padding = 14 - remain
