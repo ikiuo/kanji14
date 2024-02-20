@@ -11,7 +11,7 @@ def encode(binary: bytes) -> str:
 
     text = ''
     for val in binary:
-        temp = (temp << 8) | val
+        temp = ((temp & 0xffff) << 8) | val
         bits += 8
         if bits >= 14:
             bits -= 14
@@ -38,7 +38,7 @@ def decode(ucsdata: str) -> bytes:
         if code > 0x8E0F:
             continue
 
-        temp = (temp << 14) | (code - 0x4E10)
+        temp = ((temp & 0x3fff) << 14) | (code - 0x4E10)
         bits += 14
         while bits >= 8:
             bits -= 8
