@@ -16,14 +16,13 @@ class Kanji14 {
 		for (const i in binary) {
 			temp = (temp << 8) | binary[i];
 			bits += 8;
-			while (bits >= 14) {
+			if (bits >= 14) {
 				bits -= 14;
-				k14.push(String.fromCharCode(0x4E10 + (temp >> bits)));
+				k14.push(String.fromCharCode(0x4E10 + (0x3FFF & (temp >> bits))));
 			}
-			temp &= (1 << bits) - 1;
 		}
 		if (bits) {
-			k14.push(String.fromCharCode(0x4E10 + (temp << (14 - bits))))
+			k14.push(String.fromCharCode(0x4E10 + (0x3FFF & (temp << (14 - bits)))));
 			k14.push(String.fromCharCode(0x4E10 - bits));
 		}
 		return k14.join('')
@@ -59,7 +58,6 @@ class Kanji14 {
 				bits -= 8;
 				binary[bpos++] = temp >> bits;
 			}
-			temp &= (1 << bits) - 1;
 		}
 		if (remain)
 			bpos -= (14 - remain) >> 3;
