@@ -3,7 +3,6 @@
 // -----------------------------------------------------------------
 
 class Kanji14 {
-
 	static encode(binary) {
 		// 引数は Uint8Array オブジェクトのみ.
 		if (!(binary instanceof Uint8Array))
